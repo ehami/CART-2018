@@ -21,7 +21,6 @@ void setTwoBarLiftToAngle(double angle, int motorPower) {
 }
 
 void setLiftToDepthAndHeight(double depth, double height) {
-  
     //height = 9 + 29 * cos(twoBarAngle) + 13 * sin(chainLiftAngle)
     //depth = 11.25 + 13 * cos(ChainLiftAngle)
     double chainLiftAngle;
