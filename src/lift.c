@@ -1,60 +1,109 @@
-#include "main.h"    // includes API.h and other headers
+#include "main.h" // includes API.h and other headers
 
-//Sets the chain lift to a specific angle (in degrees) using the specific motorPower.
-void setChainLiftToAngle(double angle, int motorPower) {
-    if (angle > 270) {  //lift cannot go past 270 degrees
-        angle = 270;
-    } else if (angle < 0) { //lift cannot go past 0 degrees
-        angle = 0;
-    }
-    int imeTicks =  angle / 360 * 627.2;    //360 : convert degrees per rotation, 627.2: ticks per rotation
+// Functions for controlling the lift (both parts)
+
+// NOTE: ALL angles are in degrees, and are convered to radians for tric
+// calculations, then converted back.
+
+// Sets the Chain Lift to a specific power level.
+void setChainLiftToPower(int power) { motorSet(CHAIN_LIFT_PORT, power); }
+
+// Sets the Two Bar Lift to a specific power level.
+void setTwoBarLiftToPower(int power) {
+  motorSet(TWO_BAR_LIFT_MOTOR_PORT, -power);
 }
 
-//Sets the chain lift to a specific angle (in degrees) using the specific motor power.
+// Sets the chain lift to a specific angle (in degrees) using the specific
+// motorPower.
+void setChainLiftToAngle(double angle, int motorPower) {
+  if (angle > 270) { // lift cannot go past 270 degrees
+    angle = 270;
+  } else if (angle < 0) { // lift cannot go past 0 degrees
+    angle = 0;
+  }
+
+  // Calculate IME Ticks
+  // 12:36 Gear Ratio = 3:1 Gear Reduction, so turn motor 3x to turn output 1x
+  int imeTicks =
+      (int)(degreesToIMEticks(angle, IME_TICKS_PER_REV_LOW_SPEED) * 3);
+  printf("CL degrees: %f, CL ticks: %d\n", angle, imeTicks);
+}
+
+// Sets the 2 bar lift to a specific angle (in degrees) using the specific motor
+// power.
 void setTwoBarLiftToAngle(double angle, int motorPower) {
-    if (angle > 60) {  //lift cannot go past 60 degrees
-        angle = 270;
-    } else if (angle < 0) { //lift cannot go past 0 degrees
-        angle = 0;
-    }
-    int imeTicks =  angle / 360 * 627.2;
+  if (angle > 60) { // lift cannot go past 60 degrees
+    angle = 270;
+  } else if (angle < 0) { // lift cannot go past 0 degrees
+    angle = 0;
+  }
+
+  // Calculate IME Ticks (12:84 Gear Ratio = 7:1 Gear Reduction, so turn motor
+  // 7x to turn output 1x)
+  int imeTicks =
+      (int)(degreesToIMEticks(angle, IME_TICKS_PER_REV_LOW_SPEED) * 7);
+  printf("%f\n", degreesToIMEticks(angle, IME_TICKS_PER_REV_LOW_SPEED) * 7);
+
+  printf("TB degrees: %f, TB ticks: %d\n", angle, imeTicks);
 }
 
 void setLiftToDepthAndHeight(double depth, double height) {
-    //height = 9 + 29 * cos(twoBarAngle) + 13 * sin(chainLiftAngle)
-    //depth = 11.25 + 13 * cos(ChainLiftAngle)
-    double chainLiftAngle;
-    double twoBarAngle;
+  // height = 9 + 29 * cos(twoBarAngle) + 13 * sin(chainLiftAngle)
+  // depth = 11.25 + 13 * cos(ChainLiftAngle)
+  double chainLiftAngle;
+  double twoBarAngle;
 
-    if (depth <= 11.25 + 13 * cos(90)) {
-        //the chain lift angle is greater than 90, so it can be in either
-        //Quadrant II or Quadrant III, based on the deired height.
+  if (depth <= 11.25 + 13 * cos(90 / 180 * M_PI)) {
+    // the chain lift angle is greater than 90, so it can be in either
+    // Quadrant II or Quadrant III, based on the deired height.
+    chainLiftAngle = acos((depth + 11.25) / 13) / M_PI * 180;
+    twoBarAngle =
+        acos((height - 9 - 13 * sin(chainLiftAngle / 180 * M_PI)) / 29) / M_PI *
+        180;
+  } else {
+    // the chain lift is at an angle less than 90, so it has to be in Quadrant I
+    chainLiftAngle = acos((depth + 11.25) / 13) / M_PI * 180;
+    twoBarAngle =
+        acos((height - 9 - 13 * sin(chainLiftAngle / 180 * M_PI)) / 29) / M_PI *
+        180;
+  }
 
+  if (twoBarAngle > 60 || twoBarAngle < 0) {
+    // Two bar lift arm has max rotation of 60 degrees and minimum of 0 degrees
+    printf("TWO BAR ANGLE OUT OF BOUNDS: %f, C: %f H: %f, D: %f\n", twoBarAngle,
+           chainLiftAngle, height, depth);
+    if (twoBarAngle > 60) {
+      twoBarAngle = 60;
     } else {
-        //the chain lift is at an angle less than 90, so it has to be in Quadrant I
-        chainLiftAngle = acos((depth + 11.25) / 13);
-        twoBarAngle = acos((height - 9 - 13 * sin(chainLiftAngle)) / 29);
+      twoBarAngle = 0;
     }
+  }
 
-    if (twoBarAngle > 60 || twoBarAngle < 0) {
-        //Two bar lift arm has max rotation of 60 degrees and minimum of 0 degrees
-        printf("TWO BAR ANGLE OUT OF BOUNDS: %f, C: %f H: %f, D: %f\n", twoBarAngle, chainLiftAngle, height, depth);
-        if (twoBarAngle > 60) {
-            twoBarAngle = 60;
-        } else {
-            twoBarAngle = 0;
-        }
+  if (chainLiftAngle > 270 || chainLiftAngle < 0) {
+    // Chain Lift has max rotation of 270 degrees and minimum of 0 degrees
+    printf("CHAIN LIFT ANGLE OUT OF BOUNDS: %f, T: %f H: %f, D: %f\n",
+           chainLiftAngle, twoBarAngle, height, depth);
+    if (chainLiftAngle > 270) {
+      chainLiftAngle = 270;
+    } else {
+      chainLiftAngle = 0;
     }
+  }
 
-    if (chainLiftAngle > 270 || chainLiftAngle < 0) {
-        //Two bar lift arm has max rotation of 60 degrees and minimum of 0 degrees
-        printf("CHAIN LIFT ANGLE OUT OF BOUNDS: %f, T: %f H: %f, D: %f\n", chainLiftAngle, twoBarAngle, height, depth);
-        if (chainLiftAngle > 270) {
-            chainLiftAngle = 270;
-        } else {
-            chainLiftAngle = 0;
-        }
-    }
+  setChainLiftToAngle(chainLiftAngle, 127);
+  setTwoBarLiftToAngle(chainLiftAngle, 127);
+}
 
-    printf("Chain Lift: %f 2 bar Lift: %f\n", chainLiftAngle, twoBarAngle);
+// gets the position (in IME ticks) of the two bar lift
+int getTwoBarLiftIMEposition() {
+  int ticks;
+  imeGet(IME_TWO_BAR_LIFT_MOTOR, &ticks);
+  return ticks;
+}
+
+// gets the position (in IME ticks) of the chain lift
+int getChainLiftIMEposition() {
+  int ticks;
+  imeGet(IME_CHAIN_LIFT_MOTOR, &ticks);
+  return ticks;
 }
