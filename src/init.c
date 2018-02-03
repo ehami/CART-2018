@@ -23,7 +23,12 @@
  * and solenoids. It can also safely configure a UART port (usartOpen()) but
  * cannot set up an LCD (lcdInit()).
  */
-void initializeIO() {}
+void initializeIO() {
+
+  watchdogInit(); // According to PROS API, this may help with the cortex
+  // partially resetting when the I2C line (for IMEs) gets a
+  // static shock.
+}
 
 /*
  * Runs user initialization code. This function will be started in its own task
@@ -48,6 +53,15 @@ void initialize() {
     printf("ALL IMEs ARE NOT CONNECTED. There are only %d of %d connected.\n",
            IMECount, NUMBER_OF_IME);
   }
+  // Initialize Motor Manger Controller
+  // There's actually examples for this, and it took 2 minutes to implement!
+
+  // this library allows us to have a slew rate controller (slows the
+  // acceleration and decelaration) for the drive mootors to decrease current
+  // spikes that can cause the PTC's to trip.
+
+  // blrsMotorInit(LEFT_MOTOR_PORT, false, 2.0, NULL);
+  // blrsMotorInit(RIGHT_MOTOR_PORT, false, 2.0, NULL);
 
   // Initialize PID controllers
 
@@ -68,7 +82,7 @@ void initialize() {
   fbcInit(/*FBC controller*/ &mobileGoalFBC,
           /*move*/ setMobileGoalToPower,
           /*sensor*/ getMobileGoalPosition,
-          /*reset function pointer (not used, so null (0))*/ 0,
+          /*reset function pointer (not used, so null)*/ NULL,
           /*stall detect (using default)*/ fbcStallDetect,
           /*neg_deadband*/ -15,
           /*pos_deadband*/ 15,
@@ -89,7 +103,7 @@ void initialize() {
   fbcInit(/*FBC controller*/ &leftFBC,
           /*move*/ setLeftWheelsToPower,
           /*sensor*/ getLeftWheelEncoderAverage,
-          /*reset function pointer (not used, so null (0))*/ 0,
+          /*reset function pointer (not used, so null*/ NULL,
           /*stall detect (using default)*/ fbcStallDetect,
           /*neg_deadband*/ -15,
           /*pos_deadband*/ 15,
@@ -110,7 +124,7 @@ void initialize() {
   fbcInit(/*FBC controller*/ &rightFBC,
           /*move*/ setRightWheelsToPower,
           /*sensor*/ getRightWheelEncoderAverage,
-          /*reset function pointer (not used, so null (0))*/ 0,
+          /*reset function pointer (not used, so null*/ NULL,
           /*stall detect (using default)*/ fbcStallDetect,
           /*neg_deadband*/ -15,
           /*pos_deadband*/ 15,
@@ -130,7 +144,7 @@ void initialize() {
   fbcInit(/*FBC controller*/ &twoBarLiftFBC,
           /*move*/ setTwoBarLiftToPower,
           /*sensor*/ getTwoBarLiftIMEposition,
-          /*reset function pointer (not used, so null (0))*/ 0,
+          /*reset function pointer (not used, so null*/ NULL,
           /*stall detect (using default)*/ fbcStallDetect,
           /*neg_deadband*/ -15,
           /*pos_deadband*/ 15,
@@ -150,7 +164,7 @@ void initialize() {
   fbcInit(/*FBC controller*/ &chainLiftFBC,
           /*move*/ setChainLiftToPower,
           /*sensor*/ getChainLiftIMEposition,
-          /*reset function pointer (not used, so null (0))*/ 0,
+          /*reset function pointer (not used, so null)*/ NULL,
           /*stall detect (using default)*/ fbcStallDetect,
           /*neg_deadband*/ -15,
           /*pos_deadband*/ 15,
@@ -170,7 +184,7 @@ void initialize() {
   fbcInit(/*FBC controller*/ &coneIntakeFBC,
           /*move*/ setConeIntakeToPower,
           /*sensor*/ getConeIntakePosition,
-          /*reset function pointer (not used, so null (0))*/ 0,
+          /*reset function pointer (not used, so null*/ NULL,
           /*stall detect (using default)*/ fbcStallDetect,
           /*neg_deadband*/ -15,
           /*pos_deadband*/ 15,

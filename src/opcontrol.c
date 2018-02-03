@@ -62,7 +62,7 @@ void operatorControl() {
     turn = joystickGetAnalog(1, 1);  // horizontal axis on right joystick
     // printf("Power: %d, Turn: %d\n", power, turn);
 
-    if (abs(power) > 5 || abs(turn) > 5) {
+    if (abs(power) > 10 || abs(turn) > 10) {
       setDriveWheelsToPower(power + turn, power - turn);
     } else {
       setDriveWheelsToPower(0, 0);
@@ -86,14 +86,29 @@ void operatorControl() {
       setTwoBarLiftToPower(0);
     }
 
-    // Pickup mobile goal on press of 7U (and reverse on 7D)
-    if (joystickGetDigital(1, 7, JOY_UP)) {
+    // Pickup mobile goal on press of 8U (and reverse on 8D)
+    if (joystickGetDigital(1, 8, JOY_UP)) {
       setMobileGoalToPower(127);
-    } else if (joystickGetDigital(1, 7, JOY_DOWN)) {
+    } else if (joystickGetDigital(1, 8, JOY_DOWN)) {
       setMobileGoalToPower(-127);
     } else {
       setMobileGoalToPower(0);
     }
+
+    // Pickup cone goal on press of 7U (and reverse on 7D)
+    if (joystickGetDigital(1, 7, JOY_UP)) {
+      // rotateConeIntake(1);
+      setConeIntakeToPower(64);
+    } else if (joystickGetDigital(1, 7, JOY_DOWN)) {
+      // rotateConeIntake(1);
+      setConeIntakeToPower(-64);
+    } else {
+      setConeIntakeToPower(0);
+    }
+    button8uPressed = joystickGetDigital(1, 8, JOY_UP);
+    button8dPressed = joystickGetDigital(1, 8, JOY_DOWN);
+    button8lPressed = joystickGetDigital(1, 8, JOY_LEFT);
+    button8rPressed = joystickGetDigital(1, 8, JOY_RIGHT);
 
     /*
                     // Raise chain lift on press of 7U (lower on 7D)
@@ -112,30 +127,31 @@ void operatorControl() {
                     button7dPressed = joystickGetDigital(1, 7, JOY_DOWN);
     */
 
-    // Raise chain lift on press of 7U (lower on 7D)
-    if (joystickGetDigital(1, 8, JOY_UP) && !button8uPressed) {
-      // if this is a new button press
-      printf("8U Pressed\n");
-      setMobileGoalToDistance(5);
-    } else if (joystickGetDigital(1, 8, JOY_DOWN) && !button8dPressed) {
-      // if this is a new button press
-      printf("8D Pressed\n");
-      setMobileGoalToDistance(-1);
-    }
-    if (joystickGetDigital(1, 8, JOY_RIGHT) && !button8rPressed) {
-      // if this is a new button press
-      printf("8R Pressed\n");
-      setMobileGoalToPower(127);
-      delay(100);
-      setMobileGoalToPower(0);
-      printf("%d\n", getMobileGoalPosition());
-    } else {
-    }
-    button8uPressed = joystickGetDigital(1, 8, JOY_UP);
-    button8dPressed = joystickGetDigital(1, 8, JOY_DOWN);
-    button8lPressed = joystickGetDigital(1, 8, JOY_LEFT);
-    button8rPressed = joystickGetDigital(1, 8, JOY_RIGHT);
-
+    /*
+        // Raise chain lift on press of 7U (lower on 7D)
+        if (joystickGetDigital(1, 8, JOY_UP) && !button8uPressed) {
+          // if this is a new button press
+          printf("8U Pressed\n");
+          setMobileGoalToDistance(5);
+        } else if (joystickGetDigital(1, 8, JOY_DOWN) && !button8dPressed) {
+          // if this is a new button press
+          printf("8D Pressed\n");
+          setMobileGoalToDistance(-1);
+        }
+        if (joystickGetDigital(1, 8, JOY_RIGHT) && !button8rPressed) {
+          // if this is a new button press
+          printf("8R Pressed\n");
+          setMobileGoalToPower(127);
+          delay(100);
+          setMobileGoalToPower(0);
+          printf("%d\n", getMobileGoalPosition());
+        } else {
+        }
+        button8uPressed = joystickGetDigital(1, 8, JOY_UP);
+        button8dPressed = joystickGetDigital(1, 8, JOY_DOWN);
+        button8lPressed = joystickGetDigital(1, 8, JOY_LEFT);
+        button8rPressed = joystickGetDigital(1, 8, JOY_RIGHT);
+    */
     delay(20); // Motors and Joystics are only updated every 20 ms.
   }
 }

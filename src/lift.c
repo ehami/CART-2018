@@ -6,7 +6,7 @@
 // calculations, then converted back.
 
 // Sets the Chain Lift to a specific power level.
-void setChainLiftToPower(int power) { motorSet(CHAIN_LIFT_PORT, power); }
+void setChainLiftToPower(int power) { motorSet(CHAIN_LIFT_PORT, -power); }
 
 // Sets the Two Bar Lift to a specific power level.
 void setTwoBarLiftToPower(int power) {
@@ -14,19 +14,22 @@ void setTwoBarLiftToPower(int power) {
 }
 
 // Sets the chain lift to a specific angle (in degrees) using the specific
-// motorPower.
+// motorPower. (Function is blocking (does not exit until complete))
 void setChainLiftToAngle(double angle, int motorPower) {
-  if (angle > 270) { // lift cannot go past 270 degrees
-    angle = 270;
+  if (angle > 315) { // lift cannot go past 315 degrees (used to be 270 degrees)
+    angle = 315;
   } else if (angle < 0) { // lift cannot go past 0 degrees
     angle = 0;
   }
 
   // Calculate IME Ticks
   // 12:36 Gear Ratio = 3:1 Gear Reduction, so turn motor 3x to turn output 1x
-  int imeTicks =
-      (int)(degreesToIMEticks(angle, IME_TICKS_PER_REV_LOW_SPEED) * 3);
-  printf("CL degrees: %f, CL ticks: %d\n", angle, imeTicks);
+  int imeTicks = (int)(degreesToIMEticks(angle, IME_TICKS_PER_REV_LOW_SPEED) *
+                       calculateGearRatioMultiple(12, 60));
+
+  lcdPrint(uart1, 1, "gCL: %d,cCL: %d", imeTicks, getChainLiftIMEposition());
+  fbcSetGoal(&chainLiftFBC, imeTicks);
+  fbcRunCompletion(&chainLiftFBC, 1500);
 }
 
 // Sets the 2 bar lift to a specific angle (in degrees) using the specific motor
@@ -38,13 +41,12 @@ void setTwoBarLiftToAngle(double angle, int motorPower) {
     angle = 0;
   }
 
-  // Calculate IME Ticks (12:84 Gear Ratio = 7:1 Gear Reduction, so turn motor
-  // 7x to turn output 1x)
-  int imeTicks =
-      (int)(degreesToIMEticks(angle, IME_TICKS_PER_REV_LOW_SPEED) * 7);
-  printf("%f\n", degreesToIMEticks(angle, IME_TICKS_PER_REV_LOW_SPEED) * 7);
+  int imeTicks = (int)(degreesToIMEticks(angle, IME_TICKS_PER_REV_LOW_SPEED) *
+                       calculateGearRatioMultiple(12, 84));
 
-  printf("TB degrees: %f, TB ticks: %d\n", angle, imeTicks);
+  printf("Setting 2 bar lift to %d ticks\n", imeTicks);
+  fbcSetGoal(&twoBarLiftFBC, imeTicks);
+  fbcRunCompletion(&twoBarLiftFBC, 1500);
 }
 
 void setLiftToDepthAndHeight(double depth, double height) {
