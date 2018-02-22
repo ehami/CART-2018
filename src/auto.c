@@ -31,21 +31,42 @@
  * disable/enable cycle.
  */
 void autonomous() {
-  lcdPrint(uart1, 1, "Starting Auton\n");
-  // TODO: LCD auton switcher
+  // lcdPrint(uart1, 1, "SSG\n");
+  coneOnMobileGoalAndMoveToTenLEFT();
 
   /*
-  //wreck the other team's cones and mobile goal (to prevent auton scoring).
-  "A0" setDriveWheelsToPower(127, 127); delay(3700); setDriveWheelsToPower(0,
-  0);
-  */
 
-  // Drop a single cone on the stationary goal and then return to starting
-  // position "A1"
-  // drive forward 28.5"
-  // driveForDistance(28.5);
+  driveForDistance(2 * 12);
+  while (fbcIsConfident(&leftFBC) == 0 && fbcIsConfident(&rightFBC) == 0) {
+    fbcRunContinuous(&leftFBC);
+    fbcRunContinuous(&rightFBC);
+    delay(20);
+  }*/
+  /*
+    setMobileGoalToPower(127);
+    delay(1000);
+    setMobileGoalToPower(0);
+    setDriveWheelsToPower(127, 127);
+    delay(1500);
 
-  // raise lifts to measured angles
-  // setChainLiftToAngle(90, 127);
-  // setTwoBarLiftToAngle(20, 127);
+    setMobileGoalToPower(-127);
+    delay(1200);
+    setMobileGoalToPower(0);
+
+    setDriveWheelsToPower(127, -127);
+    delay(1800);
+
+    setDriveWheelsToPower(127, 127);
+    delay(1200);
+
+    setDriveWheelsToPower(127, -127);
+    delay(1600);
+
+    setDriveWheelsToPower(127, 127);
+    delay(2000);
+    setMobileGoalToPower(127);
+    delay(1000);
+
+    setDriveWheelsToPower(-127, -127);
+    */
 }

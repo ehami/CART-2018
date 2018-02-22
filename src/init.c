@@ -46,6 +46,14 @@ void initializeIO() {
 
 void initialize() {
 
+  setTeamName("CART9498");
+
+  lcdInit(uart1);
+  lcdClear(uart1);
+  lcdSetBacklight(uart1, true);
+  lcdSetText(uart1, 1, "Init Started");
+  print("Init Done");
+
   // Inititialize IMEs
   int IMECount = imeInitializeAll();
   // Ensure all IMEs are plugged in
@@ -156,20 +164,20 @@ void initialize() {
   // Chain Lift PID Controller
   imeReset(IME_CHAIN_LIFT_MOTOR); // Reset the IME on startup
   fbcPIDInitializeData(/*PID controller*/ &chainLiftPIDfbc,
-                       /*P*/ 0.1,
-                       /*I*/ 0.01,
-                       /*D*/ 0,
-                       /*minI*/ 0,
-                       /*minI*/ 0);
+                       /*P*/ 0.5,
+                       /*I*/ 0.0,
+                       /*D*/ 0.0,
+                       /*minI*/ 0.1,
+                       /*minI*/ -0.1);
   fbcInit(/*FBC controller*/ &chainLiftFBC,
           /*move*/ setChainLiftToPower,
           /*sensor*/ getChainLiftIMEposition,
           /*reset function pointer (not used, so null)*/ NULL,
           /*stall detect (using default)*/ fbcStallDetect,
-          /*neg_deadband*/ -15,
-          /*pos_deadband*/ 15,
+          /*neg_deadband*/ -30,
+          /*pos_deadband*/ 30,
           /*acceptableTolerance*/ 10,
-          /*acceptableConfidence*/ 5);
+          /*acceptableConfidence*/ 3);
   fbcPIDInit(/*FBC controller*/ &chainLiftFBC,
              /*PID controller*/ &chainLiftPIDfbc);
 
@@ -193,9 +201,6 @@ void initialize() {
   fbcPIDInit(/*FBC controller*/ &coneIntakeFBC,
              /*PID controller*/ &coneIntakePIDfbc);
 
-  lcdInit(uart1);
-  lcdClear(uart1);
-  lcdSetBacklight(uart1, true);
-  lcdSetText(uart1, 1, "1234567890123456");
-  lcdSetText(uart1, 2, "Important Things");
+  // lcdScriptInit(uart1);
+  // lcdScriptSelect();
 }

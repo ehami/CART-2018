@@ -4,7 +4,7 @@
 
 // sets the intake mechanism to a specific power level. (positive goes out)
 void setConeIntakeToPower(int power) {
-  motorSet(CONE_INTAKE_MOTOR_PORT, -power);
+  motorSet(CONE_INTAKE_MOTOR_PORT, power);
 }
 
 // sets the cone intake to rotate to specific angle

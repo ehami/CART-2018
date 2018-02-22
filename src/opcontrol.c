@@ -55,11 +55,13 @@ void operatorControl() {
   bool button8lPressed = false;
   bool button8rPressed = false;
 
+  int chainLiftPosition = 0;
+
   while (true) {
 
     // Wheels
-    power = joystickGetAnalog(1, 3); // vertical axis on right joystick
-    turn = joystickGetAnalog(1, 1);  // horizontal axis on right joystick
+    power = joystickGetAnalog(1, 3) * 0.65; // vertical axis on right joystick
+    turn = joystickGetAnalog(1, 1) * 0.8;   // horizontal axis on right joystick
     // printf("Power: %d, Turn: %d\n", power, turn);
 
     if (abs(power) > 10 || abs(turn) > 10) {
@@ -69,22 +71,52 @@ void operatorControl() {
     }
 
     // Raise chain lift on press of 5U (lower on 5D)
-    if (joystickGetDigital(1, 5, JOY_UP)) {
-      setChainLiftToPower(127);
-    } else if (joystickGetDigital(1, 5, JOY_DOWN)) {
-      setChainLiftToPower(-127);
+    if (joystickGetDigital(1, 5, JOY_UP) && !button5uPressed) {
+      // setChainLiftToPower(127);
+
+      if (chainLiftPosition >= 2) {
+        chainLiftPosition = 2;
+      } else {
+        chainLiftPosition++;
+      }
+    } else if (joystickGetDigital(1, 5, JOY_DOWN) && !button5dPressed) {
+      // setChainLiftToPower(-127);
+      if (chainLiftPosition <= 0) {
+        chainLiftPosition = 0;
+      } else {
+        chainLiftPosition--;
+      }
+
     } else {
-      setChainLiftToPower(0);
+      // setChainLiftToPower(0);
     }
 
+    button5uPressed = joystickGetDigital(1, 5, JOY_UP);
+    button5dPressed = joystickGetDigital(1, 5, JOY_DOWN);
+
+    switch (chainLiftPosition) {
+
+    case 0:
+      setChainLiftToAngleTarget(0);
+      break;
+    case 1:
+      setChainLiftToAngleTarget(60);
+      break;
+    case 2:
+      setChainLiftToAngleTarget(180);
+      break;
+    }
+
+    fbcRunContinuous(&chainLiftFBC);
+
     // Raise 2 bar lift on press of 6U (lower on 6D)
-    if (joystickGetDigital(1, 6, JOY_UP)) {
+    /*if (joystickGetDigital(1, 6, JOY_UP)) {
       setTwoBarLiftToPower(127);
     } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
       setTwoBarLiftToPower(-127);
     } else {
       setTwoBarLiftToPower(0);
-    }
+    }*/
 
     // Pickup mobile goal on press of 8U (and reverse on 8D)
     if (joystickGetDigital(1, 8, JOY_UP)) {
@@ -98,17 +130,17 @@ void operatorControl() {
     // Pickup cone goal on press of 7U (and reverse on 7D)
     if (joystickGetDigital(1, 7, JOY_UP)) {
       // rotateConeIntake(1);
-      setConeIntakeToPower(64);
+      setConeIntakeToPower(127);
     } else if (joystickGetDigital(1, 7, JOY_DOWN)) {
       // rotateConeIntake(1);
-      setConeIntakeToPower(-64);
+      setConeIntakeToPower(-127);
     } else {
       setConeIntakeToPower(0);
     }
-    button8uPressed = joystickGetDigital(1, 8, JOY_UP);
-    button8dPressed = joystickGetDigital(1, 8, JOY_DOWN);
-    button8lPressed = joystickGetDigital(1, 8, JOY_LEFT);
-    button8rPressed = joystickGetDigital(1, 8, JOY_RIGHT);
+    /*button7uPressed = joystickGetDigital(1, 7, JOY_UP);
+    button7dPressed = joystickGetDigital(1, 7, JOY_DOWN);
+    button7lPressed = joystickGetDigital(1, 7, JOY_LEFT);
+    button7rPressed = joystickGetDigital(1, 7, JOY_RIGHT);*/
 
     /*
                     // Raise chain lift on press of 7U (lower on 7D)

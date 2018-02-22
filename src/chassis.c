@@ -15,7 +15,7 @@ void setLeftWheelsToPower(int power) {
 // Sets the right motors to a specific power level. (positive values go forward)
 void setRightWheelsToPower(int power) {
   // blrsMotorSet(RIGHT_MOTOR_PORT, power, true);
-  motorSet(RIGHT_MOTOR_PORT, power);
+  motorSet(RIGHT_MOTOR_PORT, -power);
 }
 
 // Sets the left and right motors to the specifified values with ramping speed.
