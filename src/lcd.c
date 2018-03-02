@@ -1,5 +1,6 @@
 /**
  * @file libLCD
+ * a modified version of libLCD
  */
 #include "lcd.h"
 #include "string.h"
@@ -7,7 +8,8 @@
 #define LCD_TASK_DELTA 20
 
 static FILE *lcdPort;
-static int selection;
+int selection = -1;
+unsigned int scriptDisplayed = 0;
 
 void lcdPrintCentered(unsigned char line, const char *string) {
   char out[16];
@@ -26,34 +28,61 @@ void lcdScriptInit(FILE *port) {
   lcdSetBacklight(port, true);
   lcdPort = port;
 }
-
-void _lcdScriptSelect() {
-  unsigned int scriptNumber = 0;
-  lcdPrintCentered(1, "<Script>");
-  selection = -1;
-  while (selection == -1) {
-    unsigned int button = lcdReadButtons(lcdPort);
-    if (button == 1) {
-      if (scriptNumber != 0)
-        scriptNumber--;
+// called in a looping task in lcdScriptSelect
+void _lcdScriptSelect(void *parameters) {
+  while (true) {
+    // check for button press
+    unsigned int button = lcdReadButtons(uart1);
+    switch (button) {
+    case 1: // left button
+      printf("lb pressed\n");
+      if (scriptDisplayed > 0) { // not on first script
+        scriptDisplayed--;
+      }
+      break;
+    case 2: // center button
+      printf("cb pressed\n");
+      selection = scriptDisplayed;
+      break;
+    case 4:
+      printf("rb pressed\n");
+      if (scriptDisplayed < (NUM_SCRIPTS - 1)) { // not on last script
+        scriptDisplayed++;
+      }
+      break;
     }
-
-    else if (button == 4) {
-      if (scriptNumber < (NUM_SCRIPTS - 1))
-        scriptNumber++;
+    if (selection == -1 || scriptDisplayed != selection) { // no script selected
+      if (scriptDisplayed == 0) { // showing first script
+        lcdPrint(uart1, 1, "  %s >", titles[scriptDisplayed]);
+      } else if (scriptDisplayed == (NUM_SCRIPTS)) { // showing last script
+        lcdPrint(uart1, 1, "< %s  ", titles[scriptDisplayed]);
+      } else {
+        lcdPrint(uart1, 1, "< %s >", titles[scriptDisplayed]);
+      }
+    } else {                      // script has been selected and is shown
+      if (scriptDisplayed == 0) { // showing first script
+        lcdPrint(uart1, 1, " *%s*>", titles[scriptDisplayed]);
+      }
+      if (scriptDisplayed ==
+          (sizeof(&scripts) / sizeof(&scripts[0]) - 1)) { // showing last script
+        lcdPrint(uart1, 1, "<*%s* ", titles[scriptDisplayed]);
+      } else {
+        lcdPrint(uart1, 1, "<*%s*>", titles[scriptDisplayed]);
+      }
     }
-
-    if (button == 2) {
-      selection = scriptNumber;
-      lcdPrintCentered(1, "<Selected>");
+    if (button != 0) { // give time to release button
+      while (lcdReadButtons(uart1) != 0) {
+        delay(20);
+      }
     }
-
-    lcdPrintCentered(2, titles[scriptNumber]);
-    delay(150);
+    delay(20);
   }
 }
 
-void lcdScriptSelect() { taskRunLoop(_lcdScriptSelect, LCD_TASK_DELTA); }
+void lcdScriptSelect() {
+  TaskHandle lcdTask = taskCreate(_lcdScriptSelect, TASK_DEFAULT_STACK_SIZE,
+                                  NULL, TASK_PRIORITY_DEFAULT);
+}
 
 void lcdScriptExecute() {
   if (selection < 0)

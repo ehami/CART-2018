@@ -1,6 +1,8 @@
 // Various converters and calculators that dont really fit anywhere else
 
 #include "main.h"
+#include <stdlib.h>
+#include <string.h>
 
 // Converts radians to degrees
 double radiansToDegrees(double radians) {
@@ -18,7 +20,7 @@ double degreesToIMEticks(double degrees, double ticksPerRevolution) {
 }
 
 // Calculates gear ratio multiple (returns the inverse of the gear reduction)
-// how much to multiply the motor ticks by in order to account for gearing)).
+// (how much to multiply the motor ticks by in order to account for gearing)).
 double calculateGearRatioMultiple(int inputGearTeeth, int outputGearTeeth) {
   double invReduction =
       ((double)outputGearTeeth) /

@@ -48,11 +48,8 @@ void initialize() {
 
   setTeamName("CART9498");
 
-  lcdInit(uart1);
-  lcdClear(uart1);
-  lcdSetBacklight(uart1, true);
-  lcdSetText(uart1, 1, "Init Started");
-  print("Init Done");
+  lcdScriptInit(uart1);
+  print("Init Started");
 
   // Inititialize IMEs
   int IMECount = imeInitializeAll();
@@ -60,6 +57,7 @@ void initialize() {
   if (IMECount != NUMBER_OF_IME) {
     printf("ALL IMEs ARE NOT CONNECTED. There are only %d of %d connected.\n",
            IMECount, NUMBER_OF_IME);
+    lcdPrint(uart1, 2, "%d/%d IMEs connected", IMECount, NUMBER_OF_IME);
   }
   // Initialize Motor Manger Controller
   // There's actually examples for this, and it took 2 minutes to implement!
@@ -113,10 +111,10 @@ void initialize() {
           /*sensor*/ getLeftWheelEncoderAverage,
           /*reset function pointer (not used, so null*/ NULL,
           /*stall detect (using default)*/ fbcStallDetect,
-          /*neg_deadband*/ -15,
-          /*pos_deadband*/ 15,
-          /*acceptableTolerance*/ 10,
-          /*acceptableConfidence*/ 5);
+          /*neg_deadband*/ -30,
+          /*pos_deadband*/ 30,
+          /*acceptableTolerance*/ 50,
+          /*acceptableConfidence*/ 2);
   fbcPIDInit(/*FBC controller*/ &leftFBC,
              /*PID controller*/ &leftPIDfbc);
 
@@ -134,10 +132,10 @@ void initialize() {
           /*sensor*/ getRightWheelEncoderAverage,
           /*reset function pointer (not used, so null*/ NULL,
           /*stall detect (using default)*/ fbcStallDetect,
-          /*neg_deadband*/ -15,
-          /*pos_deadband*/ 15,
-          /*acceptableTolerance*/ 10,
-          /*acceptableConfidence*/ 5);
+          /*neg_deadband*/ -30,
+          /*pos_deadband*/ 30,
+          /*acceptableTolerance*/ 50,
+          /*acceptableConfidence*/ 2);
   fbcPIDInit(/*FBC controller*/ &rightFBC,
              /*PID controller*/ &rightPIDfbc);
 
@@ -200,7 +198,7 @@ void initialize() {
           /*acceptableConfidence*/ 5);
   fbcPIDInit(/*FBC controller*/ &coneIntakeFBC,
              /*PID controller*/ &coneIntakePIDfbc);
-
-  // lcdScriptInit(uart1);
-  // lcdScriptSelect();
+  //                   1234567890123456
+  lcdPrintCentered(2, "Init Done");
+  lcdScriptSelect();
 }

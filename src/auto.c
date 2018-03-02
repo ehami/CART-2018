@@ -32,8 +32,9 @@
  */
 void autonomous() {
   // lcdPrint(uart1, 1, "SSG\n");
-  coneOnMobileGoalAndMoveToTenLEFT();
-
+  // mobileGoalToTenOrTwentyFromLeftOrRight(true, false);
+  // chaseSkillsAuton();
+  lcdScriptExecute();
   /*
 
   driveForDistance(2 * 12);

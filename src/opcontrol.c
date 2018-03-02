@@ -184,6 +184,14 @@ void operatorControl() {
         button8lPressed = joystickGetDigital(1, 8, JOY_LEFT);
         button8rPressed = joystickGetDigital(1, 8, JOY_RIGHT);
     */
+    // Display line sensor values to LCD
+    /*
+    lcdPrint(uart1, 1, "LF:%d, RF:%d", analogRead(LEFT_FRONT_LINE_SENSOR),
+             analogRead(RIGHT_FRONT_LINE_SENSOR));
+    lcdPrint(uart1, 2, "LB:%d, RB:%d", analogRead(LEFT_BACK_LINE_SENSOR),
+             analogRead(RIGHT_BACK_LINE_SENSOR));
+             */
+
     delay(20); // Motors and Joystics are only updated every 20 ms.
   }
 }
