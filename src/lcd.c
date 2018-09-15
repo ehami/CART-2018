@@ -8,8 +8,8 @@
 #define LCD_TASK_DELTA 20
 
 static FILE *lcdPort;
-int selection = -1;
-unsigned int scriptDisplayed = 0;
+int selection = 1;
+unsigned int scriptDisplayed = 1;
 
 void lcdPrintCentered(unsigned char line, const char *string) {
   char out[16];

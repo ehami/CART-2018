@@ -112,8 +112,8 @@ void mobileGoalToTenLeftOrRight(bool isLeft) {
       setDriveWheelsToPower(25, -127);
     }
     delay(2450);
-    setDriveWheelsToPower(90, 90);
-    delay(900);
+    setDriveWheelsToPower(80, 80);
+    delay(700);
     setMobileGoalToPower(127);
     delay(1000);
     setMobileGoalToPower(-127);
@@ -158,6 +158,7 @@ void chaseSkillsAuton() {
     delay(20);
   }
   setMobileGoalToPower(-127);
+  setDriveWheelsToPower(0, 0);
   delay(300);
   setDriveWheelsToPower(-80, -80);
   delay(600);
@@ -169,14 +170,6 @@ void chaseSkillsAuton() {
   }
   setMobileGoalToPower(0);
   delay(300);
-  /*fbcSetGoal(&leftFBC, degreesToIMEticks(720, IME_TICKS_PER_REV_LOW_SPEED)
-  - getLeftWheelEncoderAverage()); fbcSetGoal(&rightFBC,
-  degreesToIMEticks(-720, IME_TICKS_PER_REV_LOW_SPEED) +
-                            getRightWheelEncoderAverage());
-
-  while (fbcIsConfident(&leftFBC) != 1 && fbcIsConfident(&rightFBC)) {
-    fbcRunContinuous(&leftFBC);
-    fbcRunContinuous(&rightFBC);*/
   setDriveWheelsToPower(-60, 60);
   while (analogRead(RIGHT_FRONT_LINE_SENSOR) > LINE_SENSOR_THRESHOLD) {
     printf("Front Right Line Sensor: %d\n",
@@ -192,16 +185,20 @@ void chaseSkillsAuton() {
   delay(2500);
   setMobileGoalToPower(127);
   delay(1500);
-  // setMobileGoalToPower(-127);
-  // delay(400);
   setDriveWheelsToPower(-127, -127);
   delay(700);
   setDriveWheelsToPower(0, 0);
   setMobileGoalToPower(-127);
-  delay(700);
+  delay(800);
   setMobileGoalToPower(0);
   setDriveWheelsToPower(-127, -127);
   delay(1300);
   setDriveWheelsToPower(-80, 80);
-  delay(900);
+  delay(1300);
+  setDriveWheelsToPower(127, 127);
+  delay(550);
+  setDriveWheelsToPower(80, -80);
+  delay(1000);
+  setDriveWheelsToPower(-127, -127);
+  delay(10000);
 }
